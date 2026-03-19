@@ -7,12 +7,18 @@ import {
   type ReleaseResponse,
 } from "../lib/api";
 
+const VALID_CODES = ["ALPHA1", "BETA1", "TESTER"];
+
 export default function DownloadPage() {
   const [manifest, setManifest] = React.useState<ManifestResponse | null>(null);
   const [release, setRelease] = React.useState<ReleaseResponse | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
   const [accepted, setAccepted] = React.useState(false);
+
+  const [code, setCode] = React.useState("");
+  const [unlocked, setUnlocked] = React.useState(false);
+  const [codeError, setCodeError] = React.useState("");
 
   React.useEffect(() => {
     let cancelled = false;
@@ -46,7 +52,23 @@ export default function DownloadPage() {
     };
   }, []);
 
-  const canDownload = !!manifest?.downloadAvailable && !!manifest?.downloadUrl && accepted;
+  function handleUnlock() {
+    const normalized = code.trim().toUpperCase();
+
+    if (VALID_CODES.includes(normalized)) {
+      setUnlocked(true);
+      setCodeError("");
+    } else {
+      setUnlocked(false);
+      setCodeError("Invalid beta access code.");
+    }
+  }
+
+  const canDownload =
+    !!manifest?.downloadAvailable &&
+    !!manifest?.downloadUrl &&
+    accepted &&
+    unlocked;
 
   return (
     <Layout title="Download">
@@ -54,13 +76,50 @@ export default function DownloadPage() {
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8">
           <h1 className="text-3xl font-bold text-white">Download Android APK</h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
-            SoberTaper is distributed directly through this website for supported regions.
-            This software is intended for educational simulation and discussion use only.
+            SoberTaper is distributed directly through this website for supported
+            regions. This software is intended for educational simulation and
+            discussion use only.
           </p>
+
+          {!unlocked && (
+            <div className="mt-8 rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-5">
+              <h2 className="text-lg font-semibold text-white">Private Beta Access</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-300">
+                Enter your beta access code to unlock the APK download.
+              </p>
+
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <input
+                  className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
+                  placeholder="Enter access code"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                />
+                <button
+                  onClick={handleUnlock}
+                  className="rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950"
+                >
+                  Unlock Download
+                </button>
+              </div>
+
+              {codeError && (
+                <div className="mt-3 text-sm text-amber-200">{codeError}</div>
+              )}
+            </div>
+          )}
+
+          {unlocked && (
+            <div className="mt-8 rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-4 text-sm text-emerald-100">
+              Beta access unlocked.
+            </div>
+          )}
 
           <div className="mt-8 grid gap-6 md:grid-cols-2">
             <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5">
-              <div className="text-sm font-semibold text-white">Install instructions</div>
+              <div className="text-sm font-semibold text-white">
+                Install instructions
+              </div>
               <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-7 text-slate-300">
                 <li>Download the APK file.</li>
                 <li>Open the file on your Android device.</li>
@@ -70,32 +129,65 @@ export default function DownloadPage() {
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5">
-              <div className="text-sm font-semibold text-white">Live release details</div>
+              <div className="text-sm font-semibold text-white">
+                Live release details
+              </div>
 
               {loading ? (
-                <div className="mt-4 text-sm text-slate-300">Loading release metadata...</div>
+                <div className="mt-4 text-sm text-slate-300">
+                  Loading release metadata...
+                </div>
               ) : error ? (
                 <div className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/5 px-4 py-3 text-sm text-amber-100">
                   {error}
                 </div>
               ) : (
-                <div className="mt-4 space-y-2 text-sm leading-7 text-slate-300 break-all">
-                  <div><span className="text-slate-100">Version:</span> {manifest?.version ?? release?.version ?? "—"}</div>
-                  <div><span className="text-slate-100">Channel:</span> {release?.channel ?? "—"}</div>
-                  <div><span className="text-slate-100">Platform:</span> {manifest?.platform ?? release?.platform ?? "—"}</div>
-                  <div><span className="text-slate-100">File type:</span> {manifest?.fileType ?? "apk"}</div>
-                  <div><span className="text-slate-100">Minimum Android:</span> {manifest?.minAndroid ?? release?.minAndroid ?? "—"}</div>
-                  <div><span className="text-slate-100">SHA256:</span> {manifest?.sha256 ?? "E466588F6DDF413515E7E17D9BB0F8CBD2C8BEA4C7EEC87E8F5FA4101635E514"}</div>
-                  <div><span className="text-slate-100">Download available:</span> {manifest?.downloadAvailable ? "Yes" : "No"}</div>
-                  <div><span className="text-slate-100">Download URL:</span> {manifest?.downloadUrl ?? "—"}</div>
-                  <div><span className="text-slate-100">API Base:</span> {import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000"}</div>
+                <div className="mt-4 space-y-2 break-all text-sm leading-7 text-slate-300">
+                  <div>
+                    <span className="text-slate-100">Version:</span>{" "}
+                    {manifest?.version ?? release?.version ?? "—"}
+                  </div>
+                  <div>
+                    <span className="text-slate-100">Channel:</span>{" "}
+                    {release?.channel ?? "—"}
+                  </div>
+                  <div>
+                    <span className="text-slate-100">Platform:</span>{" "}
+                    {manifest?.platform ?? release?.platform ?? "—"}
+                  </div>
+                  <div>
+                    <span className="text-slate-100">File type:</span>{" "}
+                    {manifest?.fileType ?? "apk"}
+                  </div>
+                  <div>
+                    <span className="text-slate-100">Minimum Android:</span>{" "}
+                    {manifest?.minAndroid ?? release?.minAndroid ?? "—"}
+                  </div>
+                  <div>
+                    <span className="text-slate-100">SHA256:</span>{" "}
+                    {manifest?.sha256 ??
+                      "E466588F6DDF413515E7E17D9BB0F8CBD2C8BEA4C7EEC87E8F5FA4101635E514"}
+                  </div>
+                  <div>
+                    <span className="text-slate-100">Download available:</span>{" "}
+                    {manifest?.downloadAvailable ? "Yes" : "No"}
+                  </div>
+                  <div>
+                    <span className="text-slate-100">Download URL:</span>{" "}
+                    {manifest?.downloadUrl ?? "—"}
+                  </div>
+                  <div>
+                    <span className="text-slate-100">API Base:</span>{" "}
+                    {import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000"}
+                  </div>
                 </div>
               )}
             </div>
           </div>
 
           <div className="mt-6 rounded-2xl border border-amber-300/20 bg-amber-300/5 p-5 text-sm leading-7 text-slate-300">
-            Availability may be limited by geography, payment support, legal environment, and rollout stage.
+            Availability may be limited by geography, payment support, legal
+            environment, and rollout stage.
           </div>
 
           {release?.notes?.length ? (
@@ -118,8 +210,9 @@ export default function DownloadPage() {
                 onChange={(e) => setAccepted(e.target.checked)}
               />
               <span>
-                I understand SoberTaper is educational simulation software and not medical advice,
-                treatment instruction, prescribing guidance, or emergency guidance.
+                I understand SoberTaper is educational simulation software and
+                not medical advice, treatment instruction, prescribing guidance,
+                or emergency guidance.
               </span>
             </label>
 
@@ -134,7 +227,7 @@ export default function DownloadPage() {
                 if (!canDownload) e.preventDefault();
               }}
             >
-              Download APK
+              {unlocked ? "Download APK" : "Enter Beta Code to Unlock"}
             </a>
 
             <a
