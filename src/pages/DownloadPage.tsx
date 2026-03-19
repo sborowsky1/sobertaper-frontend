@@ -7,7 +7,7 @@ import {
   type ReleaseResponse,
 } from "../lib/api";
 
-const VALID_CODES = ["ALPHA1", "BETA1", "TESTER"];
+const VALID_CODES = ["BETA537TEST158"];
 
 export default function DownloadPage() {
   const [manifest, setManifest] = React.useState<ManifestResponse | null>(null);
@@ -64,9 +64,14 @@ export default function DownloadPage() {
     }
   }
 
-  const canDownload =
-    !!manifest?.downloadAvailable &&
-    !!manifest?.downloadUrl &&
+    const fallbackDownloadUrl =
+    "http://localhost:4000/downloads/SoberTaper-0.9.0-beta.1.apk";
+
+    const effectiveDownloadUrl = manifest?.downloadUrl || fallbackDownloadUrl;
+
+    const canDownload =
+    (manifest?.downloadAvailable ?? true) &&
+    !!effectiveDownloadUrl &&
     accepted &&
     unlocked;
 
@@ -217,7 +222,7 @@ export default function DownloadPage() {
             </label>
 
             <a
-              href={canDownload ? manifest!.downloadUrl : "#"}
+              href={canDownload ? effectiveDownloadUrl : "#"}
               className={`rounded-2xl px-5 py-3 text-sm font-semibold ${
                 canDownload
                   ? "bg-cyan-400 text-slate-950"
@@ -227,7 +232,11 @@ export default function DownloadPage() {
                 if (!canDownload) e.preventDefault();
               }}
             >
-              {unlocked ? "Download APK" : "Enter Beta Code to Unlock"}
+              {canDownload
+                ? "Download APK"
+                : unlocked
+                    ? "Check Disclaimer to Enable Download"
+                    : "Enter Beta Code to Unlock"}
             </a>
 
             <a
