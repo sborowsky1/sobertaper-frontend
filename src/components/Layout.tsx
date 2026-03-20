@@ -6,7 +6,7 @@ type LayoutProps = {
   title?: string;
 };
 
-export default function Layout({ children, title = "SoberTaper" }: LayoutProps) {
+export default function Layout({ children, title = "SoberTaper™" }: LayoutProps) {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/80 backdrop-blur">
@@ -41,7 +41,7 @@ export default function Layout({ children, title = "SoberTaper" }: LayoutProps) 
       <footer className="border-t border-white/10 bg-slate-950/80">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8 md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="text-sm font-medium text-slate-200">© 2026 SoberTaper</div>
+            <div className="text-sm font-medium text-slate-200">SoberTaper™ · Patents Pending · © 2026 Stevens Borowsky. All rights reserved.</div>
             <div className="mt-1 text-sm text-slate-400">Educational simulation software.</div>
           </div>
 
