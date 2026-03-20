@@ -3,11 +3,10 @@ import Layout from "../components/Layout";
 import {
   fetchLatestRelease,
   fetchManifest,
+  requestDownload,
   type ManifestResponse,
   type ReleaseResponse,
 } from "../lib/api";
-
-const VALID_CODES = ["BETA537TEST158"];
 
 export default function DownloadPage() {
   const [manifest, setManifest] = React.useState<ManifestResponse | null>(null);
@@ -19,6 +18,8 @@ export default function DownloadPage() {
   const [code, setCode] = React.useState("");
   const [unlocked, setUnlocked] = React.useState(false);
   const [codeError, setCodeError] = React.useState("");
+  const [codeLoading, setCodeLoading] = React.useState(false);
+  const [approvedDownloadUrl, setApprovedDownloadUrl] = React.useState("");
 
   React.useEffect(() => {
     let cancelled = false;
@@ -52,25 +53,34 @@ export default function DownloadPage() {
     };
   }, []);
 
-  function handleUnlock() {
-    const normalized = code.trim().toUpperCase();
-
-    if (VALID_CODES.includes(normalized)) {
-      setUnlocked(true);
+  async function handleUnlock() {
+    try {
+      setCodeLoading(true);
       setCodeError("");
-    } else {
+
+      const result = await requestDownload(code);
+
+      if (result.allowed) {
+        setUnlocked(true);
+        setApprovedDownloadUrl(result.downloadUrl);
+      } else {
+        setUnlocked(false);
+        setApprovedDownloadUrl("");
+        setCodeError(result.message || "Invalid beta access code.");
+      }
+    } catch (err) {
       setUnlocked(false);
-      setCodeError("Invalid beta access code.");
+      setApprovedDownloadUrl("");
+      setCodeError(err instanceof Error ? err.message : "Failed to validate code.");
+    } finally {
+      setCodeLoading(false);
     }
   }
 
-    const fallbackDownloadUrl =
-    "http://localhost:4000/downloads/SoberTaper-0.9.0-beta.1.apk";
+  const effectiveDownloadUrl = approvedDownloadUrl || manifest?.downloadUrl || "";
 
-    const effectiveDownloadUrl = manifest?.downloadUrl || fallbackDownloadUrl;
-
-    const canDownload =
-    (manifest?.downloadAvailable ?? true) &&
+  const canDownload =
+    !!manifest?.downloadAvailable &&
     !!effectiveDownloadUrl &&
     accepted &&
     unlocked;
@@ -101,10 +111,15 @@ export default function DownloadPage() {
                   onChange={(e) => setCode(e.target.value)}
                 />
                 <button
-                  onClick={handleUnlock}
-                  className="rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950"
-                >
-                  Unlock Download
+                    onClick={handleUnlock}
+                    disabled={codeLoading}
+                    className={`rounded-xl px-5 py-3 text-sm font-semibold ${
+                        codeLoading
+                        ? "cursor-not-allowed bg-slate-600 text-slate-300"
+                        : "bg-cyan-400 text-slate-950"
+                    }`}
+                    >
+                    {codeLoading ? "Checking..." : "Unlock Download"}
                 </button>
               </div>
 

@@ -14,8 +14,27 @@ export type ManifestResponse = {
   minAndroid: string;
   sha256: string;
   downloadAvailable: boolean;
+  downloadPath: string;
   downloadUrl: string;
 };
+
+export type DownloadRequestResponse = {
+  allowed: boolean;
+  message: string;
+  downloadUrl: string;
+};
+
+export async function requestDownload(code: string): Promise<DownloadRequestResponse> {
+  const res = await fetch(`${API_BASE}/api/download/request`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ code }),
+  });
+
+  return parseJson<DownloadRequestResponse>(res);
+}
 
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || "http://localhost:4000";
