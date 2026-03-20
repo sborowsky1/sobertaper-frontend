@@ -44,7 +44,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <Layout title="SoberTaper Home Preview">
+    <Layout title="SoberTaper Home">
       <section className="border-b border-white/10 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 py-20 lg:grid-cols-2 lg:items-center">
           <div>
@@ -148,7 +148,7 @@ export default function HomePage() {
       <section id="features" className="mx-auto max-w-7xl px-6 py-16">
         <SectionIntro
           title="What it does"
-          body="Built for simulation, visualization, and education while keeping the interface clear and mobile-first."
+          body="Simulate, visualize, and study the pharmakokinetic processes of drug tapering with the most powerful and detailed titration simulation, all in the palm of your hand."
         />
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {features.map((feature) => (
@@ -164,7 +164,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-6 py-16">
           <SectionIntro
             title="What SoberTaper helps visualize"
-            body="This keeps the product understandable without changing the simulation-first framing."
+            body="Get a whole-picture understanding of the taper process; even across dynamic, ever-changing environments."
           />
           <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {visualizeItems.map((item) => (
@@ -182,7 +182,7 @@ export default function HomePage() {
       <section id="screenshots" className="mx-auto max-w-7xl px-6 py-16">
         <SectionIntro
           title="Screenshots"
-          body="Using your updated desktop screenshots and logo in the landing-page preview."
+          body="The most detailed titration simulations ever created, down to the minute, now in your hands."
         />
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
@@ -191,8 +191,8 @@ export default function HomePage() {
             </div>
             <h3 className="mt-4 text-lg font-semibold text-white">Simulated taper chart view</h3>
             <p className="mt-2 text-sm leading-6 text-slate-400">
-              Shows simulated adherence, current simulated dose, taper charting, and the next simulated
-              dose entry inside the main dashboard.
+              Simulate adherence and dose entries down to the minute
+              inside the main dashboard with charting, blood levels, and more.
             </p>
           </div>
 
@@ -202,7 +202,7 @@ export default function HomePage() {
             </div>
             <h3 className="mt-4 text-lg font-semibold text-white">Simulation overview metrics</h3>
             <p className="mt-2 text-sm leading-6 text-slate-400">
-              Highlights the recent adaptation outlook, simulation percentage complete, and high-level
+              Utilize recent adaptation outlook with high-level
               overview metrics in a compact layout.
             </p>
           </div>
